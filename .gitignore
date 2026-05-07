@@ -1,0 +1,59 @@
+# ============================
+# Compiled Java Output
+# ============================
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# ============================
+# Eclipse / IDE specific
+# ============================
+.classpath
+.project
+.settings/
+*.launch
+.metadata/
+
+# ============================
+# IntelliJ IDEA
+# ============================
+.idea/
+*.iml
+*.iws
+out/
+
+# ============================
+# VS Code
+# ============================
+.vscode/
+
+# ============================
+# Large output files (keep stats & summary)
+# ============================
+outputs/*_output.txt
+outputs_1st/
+outputs_2nd/
+
+# ============================
+# Large dataset files (download separately per README)
+# ============================
+src/data/retail.txt
+src/data/kosarak.dat.txt
+src/data/*.dat
+src/data/*.dat.txt
+
+# ============================
+# OS specific
+# ============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================
+# Logs & temp
+# ============================
+*.log
+*.tmp
+*.bak
