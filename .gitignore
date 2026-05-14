@@ -30,11 +30,14 @@ out/
 .vscode/
 
 # ============================
-# Large output files (keep stats & summary)
+# Large output files (keep CSV summary, ignore individual output files)
 # ============================
 outputs/*_output.txt
+outputs/*_stats.txt
 outputs_1st/
 outputs_2nd/
+outputs_parallel/*_output.txt
+outputs_parallel/*_stats.txt
 
 # ============================
 # Large dataset files (download separately per README)
