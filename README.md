@@ -6,67 +6,25 @@
 
 ---
 
-## 📌 Tổng quan
+## 📌 Tổng Quan
 
 Project này hiện thực và so sánh **3 thuật toán khai thác mẫu định kỳ cục bộ (LPPM)** trên các tập dữ liệu giao dịch thực tế:
 
-| Thuật toán | Cấu trúc dữ liệu | Cách duyệt |
-|---|---|---|
-| **LPP-Growth** | LPPTree (nén dữ liệu) | Pattern-Growth (Top-down) |
-| **LPPM-Breadth** | Vertical DB + BitSet | BFS (Apriori-like) |
-| **LPPM-Depth** | Vertical DB + BitSet | DFS (Equivalence Class - Eclat-like) |
+| Thuật toán | Cấu trúc dữ liệu | Cách duyệt | Hiệu năng |
+|---|---|---|---|
+| **LPP-Growth** | LPPTree (nén dữ liệu) | Pattern-Growth (Top-down) | ✅ Nhanh nhất |
+| **LPPM-Breadth** | Vertical DB + BitSet | BFS (Apriori-like) | ⚠️ OutOfMemory |
+| **LPPM-Depth** | Vertical DB + BitSet | DFS (Equivalence Class - Eclat-like) | ⚠️ OutOfMemory |
+
+**Ngoài ra:** Project có **phiên bản song song hóa (parallel)** của cả 3 thuật toán sử dụng `ExecutorService`.
+
+📖 **[Xem báo cáo chi tiết tại REPORT.md](REPORT.md)**
 
 ---
 
-## 🏛️ Kiến trúc mã nguồn
+## 🚀 Quick Start
 
-```
-dataMining/
-├── src/
-│   ├── algorithms/
-│   │   ├── lppgrowth/          # AlgoLPPGrowth.java + LPPTree structures
-│   │   └── lppm/               # AlgoLPPMBreadth1/2.java, AlgoLPPMDepth1/2.java
-│   ├── experiment/
-│   │   ├── ExperimentLPPGrowth.java
-│   │   ├── ExperimentLPPMBreadth.java
-│   │   ├── ExperimentLPPMDepth.java
-│   │   ├── ExperimentResult.java    # Data class → CSV output
-│   │   └── RunAllExperiments.java   # 🚀 Master: chạy 18 kịch bản tự động
-│   ├── tools/
-│   │   ├── MemoryLogger.java        # Utility để đo memory usage
-│   │   ├── dataset_converter/
-│   │   ├── dataset_generator/
-│   │   ├── dataset_stats/
-│   │   ├── other_dataset_tools/
-│   │   └── resultConverter/
-│   ├── data/                        # (Download datasets tại đây - xem bên dưới)
-│   └── LICENSE_AGREEMENT_GPL3.txt   # GPL v3 license từ SPMF
-├── bin/                             # Compiled .class files (tự động tạo khi compile)
-├── outputs/
-│   ├── summary_all_experiments.csv  # Tổng hợp kết quả benchmark
-│   └── *_stats.txt                  # Stats từng kịch bản
-└── REPORT.md                        # Báo cáo chi tiết
-```
-
----
-
-## ⚙️ Các tham số thực nghiệm
-
-Mỗi thuật toán được chạy trên **2 dataset × 3 giá trị maxPer = 18 kịch bản**:
-
-| Tham số | Giá trị |
-|---|---|
-| `maxPer` | 10%, 20%, 30% (của tổng số transactions) |
-| `minDur` | 50 |
-| `maxSoPer` | 3 |
-| Dataset 1 | `retail` — 88,162 giao dịch |
-| Dataset 2 | `kosarak` — 990,002 giao dịch |
-
----
-
-## 🚀 Hướng dẫn cài đặt & chạy
-
-### 1. Tải dataset (bắt buộc — không có trong repo do kích thước lớn)
+### 1. Tải Dataset (Bắt Buộc)
 
 ```bash
 # Dataset retail (~3MB)
@@ -76,51 +34,101 @@ curl -o src/data/retail.txt http://www.philippe-fournier-viger.com/spmf/datasets
 curl -o src/data/kosarak.dat.txt http://www.philippe-fournier-viger.com/spmf/datasets/kosarak.dat.txt
 ```
 
-Hoặc tải thủ công và đặt vào `src/data/`.
+### 2. Biên Dịch
 
-### 2. Biên dịch
+**Windows (PowerShell):**
+```powershell
+mkdir bin -Force
+javac -encoding UTF-8 -d bin -sourcepath src (Get-ChildItem -Path src -Recurse -Filter "*.java").FullName
+```
 
-**Trên Linux/Mac:**
+**Linux/Mac:**
 ```bash
 mkdir -p bin
 javac -encoding UTF-8 -d bin $(find src -name "*.java")
 ```
 
-**Trên Windows (PowerShell):**
-```powershell
-mkdir bin -Force
-javac -d bin -sourcepath src src/experiment/RunAllExperiments.java src/experiment/*.java src/algorithms/lppgrowth/*.java src/algorithms/lppm/*.java src/tools/MemoryLogger.java
-```
+### 3. Chạy Thực Nghiệm
 
-### 3. Chạy thực nghiệm
-
-**Chạy từng thuật toán đơn lẻ:**
-```bash
-java -Xmx2g -cp bin experiment.ExperimentLPPGrowth
-java -Xmx2g -cp bin experiment.ExperimentLPPMBreadth
-java -Xmx2g -cp bin experiment.ExperimentLPPMDepth
-```
-
-**Chạy toàn bộ 18 kịch bản benchmark:**
+**Chạy toàn bộ 18 kịch bản benchmark (sequential):**
 ```bash
 java -Xmx4g -cp bin experiment.RunAllExperiments
 ```
-> 💡 `-Xmx4g` để quan sát hiện tượng `OutOfMemoryError` của LPPM-Breadth/Depth trên kosarak.
+
+**Chạy toàn bộ 36 runs (sequential + parallel):**
+```bash
+java -Xmx4g -cp bin experiment.RunAllParallelExperiments
+```
+
+**Chạy từng thuật toán đơn lẻ:**
+```bash
+# LPP-Growth
+java -Xmx2g -cp bin experiment.ExperimentLPPGrowth
+
+# LPPM-Breadth
+java -Xmx2g -cp bin experiment.ExperimentLPPMBreadth
+
+# LPPM-Depth
+java -Xmx2g -cp bin experiment.ExperimentLPPMDepth
+```
+
+> 💡 **Lưu ý:** Dùng `-Xmx4g` để quan sát hiện tượng `OutOfMemoryError` của LPPM-Breadth/Depth trên kosarak.
 
 ---
 
-## 📊 Kết quả
+## 📊 Kết Quả
 
-Kết quả tổng hợp được lưu tại [`outputs/summary_all_experiments.csv`](outputs/summary_all_experiments.csv).
+Kết quả tổng hợp được lưu tại:
+- **Sequential:** [`outputs/summary_all_experiments.csv`](outputs/summary_all_experiments.csv)
+- **Parallel:** [`outputs_parallel/speedup_summary.csv`](outputs_parallel/speedup_summary.csv)
 
-### Nhận xét nổi bật
+### Nhận Xét Nổi Bật
 
-- ✅ **LPP-Growth** — nhanh nhất, tiêu thụ RAM ít nhất (~190MB ngay cả trên kosarak 990K transactions)
-- ❌ **LPPM-Breadth** — `OutOfMemoryError` trên kosarak do BitSet ngốn hàng GB RAM
-- ❌ **LPPM-Depth** — cũng gặp tử huyệt RAM trên kosarak vì "gánh nặng bẩm sinh" của Vertical Database
+| Thuật toán | Retail (88K tx) | Kosarak (990K tx) |
+|-----------|-----------------|-------------------|
+| **LPP-Growth** | ✅ ~50-100ms, ~50MB | ✅ ~190MB RAM |
+| **LPPM-Breadth** | ✅ ~100-200ms, ~100MB | ❌ OutOfMemory |
+| **LPPM-Depth** | ✅ ~150-300ms, ~80MB | ❌ OutOfMemory |
+
+**Parallel Speedup:** 1.5x - 3.0x (tùy số CPU cores)
 
 ---
 
-## 📜 Giấy phép
+## 🏛️ Cấu Trúc Project
+
+```
+dataMiningF/
+├── src/
+│   ├── algorithms/
+│   │   ├── lppgrowth/          # LPP-Growth (sequential + parallel)
+│   │   └── lppm/               # LPPM-Breadth & LPPM-Depth (sequential + parallel)
+│   ├── experiment/             # Benchmark wrappers & master runners
+│   └── tools/                  # MemoryLogger utility
+├── bin/                        # Compiled .class files
+├── outputs/                    # Sequential results
+├── outputs_parallel/           # Parallel results
+├── README.md                   # This file
+└── REPORT.md                   # 📖 Báo cáo chi tiết đầy đủ
+```
+
+---
+
+## 📚 Tài Liệu
+
+- **[REPORT.md](REPORT.md)** - Báo cáo chi tiết đầy đủ về:
+  - Mô tả thuật toán chi tiết
+  - Kiến trúc hệ thống
+  - Thiết kế thực nghiệm
+  - Kết quả và phân tích
+  - Parallel implementation details
+  - Design patterns
+
+---
+
+## 📜 Giấy Phép
 
 Mã thuật toán gốc từ SPMF được cấp phép theo **GPL v3** — xem [`src/LICENSE_AGREEMENT_GPL3.txt`](src/LICENSE_AGREEMENT_GPL3.txt).
+
+---
+
+**Cập nhật:** 2026-05-14
